@@ -1,0 +1,20 @@
+services:
+    apache:
+        image: php:8-apache
+        restart: always
+        networks:
+            - intranet
+        ports:
+            - 6102:80
+        volumes:
+            - ./www:/var/www/html
+
+    plot:
+        build: ./build-plot/.
+        volumes:
+            - ./storage:/mnt/storage
+            - ./www:/mnt/www
+        networks:
+            - intranet
+networks:
+    intranet:
