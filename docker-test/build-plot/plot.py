@@ -58,7 +58,6 @@ def make_plot_for_data(pfile, ppath, pyear, pname):
 		plt.xlabel(f"year {year}")
 		plt.ylabel("number of pictures")
 		plt.grid()
-		plt.ylim(0)
 		plt.plot(fig1_x_years, fig1_y_pic_p_year, 'o:')
 
 		path = ppath
