@@ -36,6 +36,7 @@ def make_plot_for_data(pfile, ppath, pyear, pname):
 		'text.usetex': True,
 		'font.family': 'serif',
 		})
+	
 	if pyear != "":
 		year_month = {pyear:year_month[pyear]}
 
@@ -82,10 +83,13 @@ if __name__ == '__main__':
 					 required=False, 
 					 help="if name specified, will safe plot under name_year.svg")
 	args = parser.parse_args()
-	pyear = args.year
-	pname = args.name
+
+	pfile = str(args.file)
+	ppath = str(args.path)
+	pyear = str(args.year)
+	pname = str(args.name)
 	if args.year == None:
 		pyear = ""
 	if args.name == None:
 		pname = ""
-	make_plot_for_data(args.file, args.path, pyear, pname)
+	make_plot_for_data(pfile, ppath, pyear, pname)
