@@ -1,0 +1,118 @@
+version: '3'
+services:
+    apache:
+        image: php:8-apache
+        restart: always
+        networks:
+            - intranet
+        ports:
+            - 6102:80
+        volumes:
+            - ./www:/var/www/html
+    wordpress:
+        image: wordpress
+        restart: always
+        networks:
+            - intranet
+        ports:
+            - 9090:80
+        environment:
+            WORDPRESS_DB_HOST: "wordpress_db"
+            WORDPRESS_DB_USER: "wordpress_user"
+            WORDPRESS_DB_PASSWORD: "changme"
+            WORDPRESS_DB_NAME: "exampledb"
+        depends_on:
+            - wordpress_db
+        volumes:
+            - wordpress:/var/www/html
+    wordpress_db:
+        image: mysql:8.0
+        restart: always
+        networks:
+            - intranet
+        environment:
+            MYSQL_DATABASE: "exampledb"
+            MYSQL_USER: "wordpress_user"
+            MYSQL_PASSWORD: "changeme"
+            MYSQL_RANDOM_ROOT_PASSWORD: '1'
+        volumes:
+              - wordpress_db:/var/lib/mysql
+
+    plot:
+        build: ./build-plot/.
+        volumes:
+            - ./storage:/mnt/storage
+            - ./www:/mnt/www
+        networks:
+            - intranet
+    proxy:
+        image: 'jc21/nginx-proxy-manager:latest'
+        restart: unless-stopped
+        networks:
+            - intranet
+        ports:
+            - '80:80' # Public HTTP Port
+            - '443:443' # Public HTTPS Port
+            - '81:81' # Admin Web Port
+        environment:
+          # Mysql/Maria connection parameters:
+            DB_MYSQL_HOST: "proxy_db"
+            DB_MYSQL_PORT: 3306
+            DB_MYSQL_USER: "proxy"
+            DB_MYSQL_PASSWORD: "changeme"
+            DB_MYSQL_NAME: "npm"
+        volumes:
+            - ./data:/data
+            - ./letsencrypt:/etc/letsencrypt
+        depends_on:
+            - proxy_db
+
+    proxy_db:
+        image: 'jc21/mariadb-aria:latest'
+        restart: unless-stopped
+        networks:
+            - intranet
+        environment:
+            MYSQL_ROOT_PASSWORD: 'changeme'
+            MYSQL_DATABASE: 'npm'
+            MYSQL_USER: 'proxy'
+            MYSQL_PASSWORD: 'changeme'
+            MARIADB_AUTO_UPGRADE: '1'
+        volumes:
+            - ./mysql:/var/lib/mysql
+    db:
+        image: mariadb
+        networks:
+            - intranet
+        volumes:
+            - db:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: "changeme"
+            MYSQL_PASSWORD: "changeme"
+            MYSQL_DATABASE: "nextcloud"
+            MYSQL_USER: "mysql_user"
+        restart: unless-stopped
+    nextcloud:
+        image: nextcloud:latest
+        networks:
+            - intranet
+        depends_on:
+            - db
+            - proxy
+        ports:
+            - 8080:80
+        volumes:
+            - nextcloud:/var/www/html
+            - ./app/config:/var/www/html/config
+            - ./app/custom_apps:/var/www/html/custom_apps
+            - ./app/data:/var/www/html/data
+            - ./app/themes:/var/www/html/themes
+            - ./storage:/mnt/storage
+        restart: unless-stopped
+volumes:
+    nextcloud:
+    db:
+    wordpress:
+    wordpress_db:
+networks:
+    intranet:

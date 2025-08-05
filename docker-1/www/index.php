@@ -11,11 +11,12 @@ echo '<!DOCTYPE html>
   </head>
   <body>
     <main>
-        <h1>Welcome to Your Website</h1>
+        <h1>Welcome to My Website</h1>  
     </main>
-         <img src="plot_2025.svg" alt="Italian Trulli">
+	 <img src="test_plot.svg" alt="Italian Trulli">
 
  </body>
 </html>'
-?>
 
+
+?>

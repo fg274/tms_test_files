@@ -1,0 +1,7 @@
+version: '3'
+services:
+    plot:
+        image: ubuntu:latest
+        build: .
+        volumes:
+            - /home/me/docker-1/storage:/mnt/storage
